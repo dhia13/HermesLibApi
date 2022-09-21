@@ -6,6 +6,7 @@ const dotenv = require('dotenv')
 const AuthRoute = require('./Routes/AuthRoute')
 const BookRoute = require('./Routes/BooksRoute')
 const AuthorsRoute = require('./Routes/AuthersRoute')
+const ReviewRoute = require('./Routes/ReviewRoute')
 
 dotenv.config();
 
@@ -18,6 +19,8 @@ app.use(cors());
 app.use('/api/v1/auth', AuthRoute)
 app.use('/api/v1/books', BookRoute)
 app.use('/api/v1/authors', AuthorsRoute)
+app.use('/api/v1/reviews', ReviewRoute)
+
 
 
 const CONNECTION_URL = process.env.CONNECTION_URL

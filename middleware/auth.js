@@ -1,4 +1,4 @@
-const { User } = require('../models/User.js')
+const User = require('../Models/User')
 const jwt = require('jsonwebtoken')
 
 const protect = async (req, res, next) => {
@@ -9,7 +9,6 @@ const protect = async (req, res, next) => {
     ) {
         try {
             token = req.headers.authorization.split(' ')[1]
-            console.log(token)
             const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
             req.user = await User.findById(decoded.id)
             next()
@@ -21,7 +20,7 @@ const protect = async (req, res, next) => {
         res.status(401).json({ Msg: 'No Token ,you are not authorized to access this link', success: false })
     }
 }
-const Admin = (req, res, next) => {
+const admin = (req, res, next) => {
     if (req.user && req.user.isAdmin) {
         next()
     } else {
@@ -29,4 +28,4 @@ const Admin = (req, res, next) => {
 
     }
 }
-module.exports = { Admin, protect }
+module.exports = { admin, protect }

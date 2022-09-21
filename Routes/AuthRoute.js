@@ -6,8 +6,7 @@ router.post('/register', AuthCtrl.register)
 router.post('/checkEmailAvailability', AuthCtrl.checkEmailAvailability)
 //login
 router.post('/login', AuthCtrl.login)
-//refresh token 
-router.post('/refresh', AuthCtrl.refreshToken)
-//check token
-router.post('/checkToken', AuthCtrl.checkToken)
+//check access token
+router.post('/checkTokens', AuthCtrl.checkTokens)
+
 module.exports = router

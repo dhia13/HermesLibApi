@@ -1,4 +1,4 @@
-const { User } = require('../models/User')
+const User = require('../Models/User')
 const generateToken = require('../middleware/jwt')
 const jwt = require('jsonwebtoken')
 
@@ -23,7 +23,7 @@ const authCtrl = {
                 msg: "Account registered!",
                 tokens: {
                     accessToken: generateToken(newUser._id, process.env.ACCESS_TOKEN_SECRET, '1d'),
-                    refreshToken: generateToken(newUser._id, process.env.REFRESH_TOKEN, '7d')
+                    refreshToken: generateToken(newUser._id, process.env.REFRESH_TOKEN_SECRET, '7d')
                 },
                 success: true
             })
@@ -47,7 +47,8 @@ const authCtrl = {
     },
     login: async (req, res) => {
         try {
-            const { email, password } = req.body
+            const email = req.body.email
+            const password = req.body.password
             const user = await User.findOne({ email })
             if (!user) {
                 res.status(401).json({ success: false, msg: 'wrong credentials' })
@@ -61,7 +62,7 @@ const authCtrl = {
                     msg: "User Logged in!",
                     tokens: {
                         accessToken: generateToken(user._id, process.env.ACCESS_TOKEN_SECRET, '1d'),
-                        refreshToken: generateToken(user._id, process.env.REFRESH_TOKEN, '7d')
+                        refreshToken: generateToken(user._id, process.env.REFRESH_TOKEN_SECRET, '7d')
                     },
                     success: true
                 })
@@ -70,36 +71,22 @@ const authCtrl = {
             res.status(500).json({ success: false, msg: error.messages })
         }
     },
-    refreshToken: async (req, res) => {
+    checkTokens: async (req, res) => {
         try {
-            const refreshTK = req.body.refreshToken
-            const decoded = jwt.verify(refreshTK, process.env.REFRESH_TOKEN)
-            if (decoded) {
+            const refreshtoken = req.body.refreshToken
+            const decodedRefreshToken = jwt.verify(refreshtoken, process.env.REFRESH_TOKEN_SECRET)
+            if (decodedRefreshToken) {
                 res.status(200).json({
-                    msg: "token refreshed",
-                    accessToken: generateToken(decoded.id, process.env.ACCESS_TOKEN_SECRET, '1d'),
-                    success: true
+                    accessToken: generateToken(decodedRefreshToken.id, process.env.ACCESS_TOKEN_SECRET, '1d'),
+                    success: true,
+                    msg: "refreshToken Valid access Token refreshed",
                 })
             }
             else {
-                res.status(401).json({ Msg: 'Token Expired reLogin ', success: false })
-            }
-        } catch (error) {
-            res.status(500).json({ success: false, msg: error.messages })
-        }
-    },
-    checkToken: async (req, res) => {
-        try {
-            const token = req.body.token
-            const decoded = jwt.verify(token, process.env.REFRESH_TOKEN)
-            if (decoded) {
-                res.cookie('accessToken', generateToken(decoded.id, process.env.ACCESS_TOKEN_SECRET, '1h'), { maxAge: 900000, httpOnly: false }).status(200).json({
-                    msg: "token refreshed",
-                    success: true
+                res.status(200).json({
+                    success: false,
+                    msg: "token expired",
                 })
-            }
-            else {
-                res.status(401).json({ Msg: 'Token Expired reLogin ', success: false })
             }
         } catch {
             res.status(401).json({ Msg: 'Token Expired reLogin ', success: false })
